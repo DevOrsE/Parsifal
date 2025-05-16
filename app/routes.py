@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, flash
 from flask_login import login_required, current_user
 from .parser_ozon import parse_ozon
 from .models import db, Item, PriceHistory
@@ -30,18 +30,24 @@ def index():
 def add_item():
     url = request.form['url']
     data = parse_ozon(url)
-    if not data:
-        return 'Парсинг не удался', 400
 
+    if not data or not data.get('price') or not isinstance(data['price'], (float, int)):
+        flash('❌ Парсинг не удался или цена недоступна')
+        return redirect(url_for('main.dashboard'))
+
+    # Добавляем товар
     item = Item(name=data['title'], url=url, site='ozon', user_id=current_user.id)
     db.session.add(item)
     db.session.commit()
 
+    # Добавляем историю цен
     ph = PriceHistory(item_id=item.id, date=date.today(), price=data['price'])
     db.session.add(ph)
     db.session.commit()
 
+    flash(f'✅ Добавлен товар: {data["title"]}')
     return redirect(url_for('main.dashboard'))
+
 
 @main_bp.route('/dashboard')
 @login_required
@@ -83,3 +89,19 @@ def product_detail(item_id):
                            prices=prices,
                            forecast_dates=forecast_dates,
                            forecast_prices=forecast_prices)
+
+@main_bp.route('/delete/<int:item_id>', methods=['POST'])
+@login_required
+def delete_item(item_id):
+    item = Item.query.get_or_404(item_id)
+    if item.user_id != current_user.id:
+        flash("⛔ У вас нет прав на удаление этого товара")
+        return redirect(url_for('main.dashboard'))
+
+    # Удалим историю цен, связанную с товаром
+    PriceHistory.query.filter_by(item_id=item.id).delete()
+    db.session.delete(item)
+    db.session.commit()
+
+    flash(f'🗑️ Товар "{item.name}" удалён')
+    return redirect(url_for('main.dashboard'))
