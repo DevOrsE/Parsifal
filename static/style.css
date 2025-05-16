@@ -50,3 +50,23 @@ input[type="submit"], button {
 input[type="submit"]:hover, button:hover {
     background-color: #e5c703;
 }
+body {
+    background-color: #fcd604;
+    color: #000;
+    font-family: Arial, sans-serif;
+}
+
+header, footer {
+    background-color: #1669FF;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+}
+
+button {
+    background-color: #c223df;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
