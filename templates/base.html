@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Price Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    nav {
+      background-color: #1669FF;
+      color: white;
+      padding: 12px 20px;
+    }
+
+    nav a {
+      color: #FCD604;
+      margin-left: 10px;
+      font-weight: bold;
+    }
+
+    nav span {
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <strong>Price Tracker</strong>
+    {% if current_user.is_authenticated %}
+      <span>
+        {{ current_user.email }} |
+        <a href="{{ url_for('auth.logout') }}">Выход</a>
+      </span>
+    {% else %}
+      <span>
+        <a href="{{ url_for('auth.login') }}">Вход</a> |
+        <a href="{{ url_for('auth.register') }}">Регистрация</a>
+      </span>
+    {% endif %}
+  </nav>
+
+  <div class="container">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

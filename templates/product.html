@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>График цены: {{ item.name }}</h2>
+
+<canvas id="priceChart" width="600" height="300"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const ctx = document.getElementById('priceChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|tojson }},
+        datasets: [{
+            label: 'Цена (₽)',
+            data: {{ prices|tojson }},
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3,
+        }]
+    },
+    datasets: [{
+    label: 'Цена (₽)',
+    data: {{ prices|tojson }},
+    borderColor: '#1669FF',
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    fill: false,
+    tension: 0.3
+}]
+
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: false
+            }
+        }
+    }
+});
+</script>
+
+<h3>Прогноз цены (30 дней)</h3>
+<canvas id="forecastChart" width="600" height="300"></canvas>
+
+<script>
+const ctx2 = document.getElementById('forecastChart').getContext('2d');
+const forecastChart = new Chart(ctx2, {
+    type: 'line',
+    data: {
+        labels: {{ forecast_dates|tojson }},
+        datasets: [{
+            label: 'Прогноз (₽)',
+            data: {{ forecast_prices|tojson }},
+            borderColor: 'orange',
+            borderWidth: 2,
+            fill: false,
+            tension: 0.3
+        }]
+    },
+    datasets: [{
+    label: 'Прогноз (₽)',
+    data: {{ forecast_prices|tojson }},
+    borderColor: '#C223DF',
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    borderDash: [5, 5],
+    fill: false,
+    tension: 0.3
+}]
+
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: false
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}
+
